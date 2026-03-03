@@ -1,0 +1,2264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TimeSheet Pro">
+<meta name="theme-color" content="#0F1923">
+<title>TimeSheet Pro</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0F1923;
+    --surface: #162030;
+    --surface2: #1E2D3E;
+    --border: #2A3D52;
+    --accent: #00D4FF;
+    --accent2: #FF6B35;
+    --success: #00E5A0;
+    --warning: #FFD166;
+    --danger: #FF4757;
+    --text: #E8F0F8;
+    --text2: #7B94AB;
+    --text3: #4A6278;
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+    --display: 'Syne', sans-serif;
+    --radius: 12px;
+    --radius-lg: 20px;
+    --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* ─── SCREEN SYSTEM ─── */
+  .screen { display: none; min-height: 100vh; min-height: 100dvh; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* ─── LOGIN SCREEN ─── */
+  #loginScreen {
+    background: var(--bg);
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #loginScreen::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,212,255,0.08) 0%, transparent 70%);
+    top: -200px; left: -100px;
+    pointer-events: none;
+  }
+  #loginScreen::after {
+    content: '';
+    position: absolute;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(255,107,53,0.06) 0%, transparent 70%);
+    bottom: -100px; right: -100px;
+    pointer-events: none;
+  }
+
+  .login-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 40px 36px;
+    width: 100%;
+    max-width: 420px;
+    position: relative;
+    z-index: 1;
+    box-shadow: var(--shadow);
+  }
+
+  .logo {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .logo-icon {
+    width: 56px; height: 56px;
+    background: linear-gradient(135deg, var(--accent), #0099BB);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 24px;
+  }
+  .logo h1 {
+    font-family: var(--display);
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+  .logo p { color: var(--text2); font-size: 13px; margin-top: 4px; }
+
+  .tab-switch {
+    display: flex;
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 28px;
+    gap: 4px;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    background: transparent;
+    color: var(--text2);
+  }
+  .tab-btn.active {
+    background: var(--surface2);
+    color: var(--text);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+
+  .form-group { margin-bottom: 16px; }
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--text2);
+    margin-bottom: 8px;
+    font-family: var(--mono);
+  }
+  .form-group input, .form-group select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  .form-group input:focus, .form-group select:focus {
+    border-color: var(--accent);
+  }
+  .form-group select option { background: var(--surface2); }
+
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-family: var(--display);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #0099BB);
+    color: #0F1923;
+  }
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-danger {
+    background: var(--danger);
+    color: white;
+  }
+  .btn-success {
+    background: linear-gradient(135deg, var(--success), #00AA78);
+    color: #0F1923;
+  }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text2);
+  }
+  .btn-sm { padding: 8px 16px; font-size: 13px; width: auto; display: inline-block; }
+  .btn-xs { padding: 6px 12px; font-size: 12px; width: auto; display: inline-block; }
+
+  .error-msg {
+    background: rgba(255,71,87,0.12);
+    border: 1px solid rgba(255,71,87,0.3);
+    color: var(--danger);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .error-msg.show { display: block; }
+
+  /* ─── APP SHELL ─── */
+  #appScreen { background: var(--bg); }
+
+  .app-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .app-header .logo-sm {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), #0099BB);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .app-header h2 {
+    font-family: var(--display);
+    font-size: 17px;
+    font-weight: 700;
+    flex: 1;
+  }
+  .user-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 12px 6px 8px;
+    font-size: 13px;
+    color: var(--text2);
+  }
+  .user-avatar {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #0F1923;
+  }
+  .role-admin .user-avatar { background: var(--accent2); }
+  .role-employee .user-avatar { background: var(--accent); }
+
+  .logout-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: var(--sans);
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .logout-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+  /* ─── NAV TABS (Admin) ─── */
+  .nav-tabs {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+  .nav-tab {
+    padding: 12px 20px;
+    border: none;
+    background: transparent;
+    color: var(--text2);
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .nav-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* ─── CONTENT AREA ─── */
+  .content-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ─── CARDS ─── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-family: var(--display);
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .card-subtitle {
+    font-size: 12px;
+    color: var(--text2);
+    font-family: var(--mono);
+    margin-top: 2px;
+  }
+
+  /* ─── DATE PICKER SECTION ─── */
+  .period-selector {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .period-selector .form-group {
+    margin: 0;
+    flex: 1;
+    min-width: 160px;
+  }
+  .period-info {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  /* ─── TIMESHEET TABLE ─── */
+  .timesheet-wrap { overflow-x: auto; margin: -4px; padding: 4px; }
+
+  .timesheet-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+    font-size: 13px;
+  }
+  .timesheet-table thead th {
+    background: var(--surface2);
+    padding: 10px 12px;
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    color: var(--text2);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+  }
+  .timesheet-table thead th:first-child { border-radius: 8px 0 0 0; }
+  .timesheet-table thead th:last-child { border-radius: 0 8px 0 0; }
+
+  .timesheet-table tbody tr {
+    border-bottom: 1px solid rgba(42,61,82,0.5);
+    transition: background 0.15s;
+  }
+  .timesheet-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+  .timesheet-table tbody tr.weekend { background: rgba(255,107,53,0.03); }
+  .timesheet-table tbody tr.today { background: rgba(0,212,255,0.04); }
+
+  .timesheet-table td {
+    padding: 10px 12px;
+    vertical-align: middle;
+  }
+
+  .day-label {
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .day-label .day-name {
+    color: var(--text);
+    font-weight: 500;
+  }
+  .day-label .day-date {
+    color: var(--text3);
+    font-size: 11px;
+  }
+  .weekend .day-label .day-name { color: var(--text2); }
+
+  .time-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .time-input-wrap input[type="time"] {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 10px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    outline: none;
+    width: 110px;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  .time-input-wrap input[type="time"]:focus { border-color: var(--accent); }
+  .time-input-wrap input[type="time"]:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .ampm-badge {
+    font-size: 10px;
+    font-family: var(--mono);
+    font-weight: 600;
+    padding: 3px 7px;
+    border-radius: 5px;
+    letter-spacing: 0.5px;
+  }
+  .ampm-am { background: rgba(0,229,160,0.12); color: var(--success); }
+  .ampm-pm { background: rgba(0,212,255,0.12); color: var(--accent); }
+
+  .hours-cell {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .hours-cell.zero { color: var(--text3); }
+  .hours-cell.overtime { color: var(--warning); }
+
+  .status-pill {
+    font-size: 11px;
+    font-family: var(--mono);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+  .status-submitted { background: rgba(0,212,255,0.12); color: var(--accent); }
+  .status-approved { background: rgba(0,229,160,0.12); color: var(--success); }
+  .status-pending { background: rgba(255,209,102,0.12); color: var(--warning); }
+  .status-empty { background: rgba(74,98,120,0.2); color: var(--text3); }
+
+  /* ─── SUMMARY CARDS ─── */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .stat-card .stat-label {
+    font-size: 11px;
+    color: var(--text2);
+    font-family: var(--mono);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .stat-card .stat-value {
+    font-family: var(--display);
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .stat-card .stat-sub {
+    font-size: 11px;
+    color: var(--text2);
+    font-family: var(--mono);
+    margin-top: 4px;
+  }
+  .stat-accent { color: var(--accent); }
+  .stat-success { color: var(--success); }
+  .stat-warning { color: var(--warning); }
+  .stat-orange { color: var(--accent2); }
+
+  /* ─── EMPLOYEE LIST ─── */
+  .employee-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: border-color 0.2s;
+  }
+  .employee-card:hover { border-color: var(--accent); }
+  .emp-avatar {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--display);
+    font-size: 16px;
+    font-weight: 800;
+    color: #0F1923;
+    flex-shrink: 0;
+  }
+  .emp-info { flex: 1; }
+  .emp-name {
+    font-family: var(--display);
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+  .emp-details {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text2);
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .emp-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+  /* ─── MODAL ─── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow);
+    animation: modalIn 0.2s ease;
+  }
+  @keyframes modalIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .modal-title {
+    font-family: var(--display);
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .modal-close {
+    width: 32px; height: 32px;
+    background: var(--surface2);
+    border: none;
+    border-radius: 8px;
+    color: var(--text2);
+    cursor: pointer;
+    font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .modal-close:hover { background: var(--danger); color: white; }
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .modal-actions .btn { flex: 1; }
+
+  /* ─── NOTIFICATION ─── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 9999;
+    transition: transform 0.3s ease;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: var(--shadow);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: var(--success); color: var(--success); }
+  .toast.error { border-color: var(--danger); color: var(--danger); }
+  .toast.info { border-color: var(--accent); color: var(--accent); }
+
+  /* ─── EMPLOYEE VIEW ─── */
+  .emp-header {
+    background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .emp-header .emp-avatar-lg {
+    width: 60px; height: 60px;
+    border-radius: 16px;
+    font-size: 22px;
+    font-weight: 800;
+    font-family: var(--display);
+    display: flex; align-items: center; justify-content: center;
+    color: #0F1923;
+    flex-shrink: 0;
+  }
+  .emp-header-info h3 {
+    font-family: var(--display);
+    font-size: 20px;
+    font-weight: 800;
+  }
+  .emp-header-info p {
+    color: var(--text2);
+    font-family: var(--mono);
+    font-size: 13px;
+    margin-top: 4px;
+  }
+
+  /* ─── SUBMIT SECTION ─── */
+  .submit-section {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .submit-info { font-size: 13px; color: var(--text2); }
+  .submit-info strong { color: var(--text); }
+
+  /* ─── ADMIN REVIEW ─── */
+  .review-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .review-header {
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .review-header:hover { background: var(--surface2); }
+  .review-body { padding: 16px 18px; }
+  .review-toggle {
+    margin-left: auto;
+    color: var(--text2);
+    font-size: 16px;
+    transition: transform 0.2s;
+  }
+  .review-card.expanded .review-toggle { transform: rotate(180deg); }
+
+  /* ─── SETTINGS ─── */
+  .settings-section { margin-bottom: 24px; }
+  .settings-section h3 {
+    font-family: var(--display);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ─── INSTALL BANNER ─── */
+  .install-banner {
+    background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(0,212,255,0.05));
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .install-banner .install-icon { font-size: 24px; flex-shrink: 0; }
+  .install-banner .install-text { flex: 1; font-size: 13px; color: var(--text2); }
+  .install-banner .install-text strong { color: var(--text); display: block; margin-bottom: 2px; }
+  #installBtn { width: auto; padding: 8px 16px; font-size: 13px; flex-shrink: 0; }
+
+  .ios-install-steps {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.8;
+  }
+  .ios-install-steps strong { color: var(--accent); }
+
+  /* ─── COLORS ─── */
+  .c1 { background: #00D4FF; }
+  .c2 { background: #FF6B35; }
+  .c3 { background: #00E5A0; }
+  .c4 { background: #FFD166; }
+  .c5 { background: #C77DFF; }
+  .c6 { background: #FF4757; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 480px) {
+    .login-box { padding: 28px 20px; }
+    .content-area { padding: 16px; }
+    .summary-grid { grid-template-columns: 1fr 1fr; }
+    .modal { padding: 20px; }
+    .period-selector { flex-direction: column; }
+    .period-selector .form-group { min-width: 100%; }
+    .submit-section { flex-direction: column; align-items: flex-start; }
+    .employee-card { flex-wrap: wrap; }
+    .emp-actions { width: 100%; }
+  }
+
+  @media (min-width: 1024px) {
+    .content-area { max-width: 1200px; margin: 0 auto; }
+  }
+
+  /* ─── LOADING ─── */
+  .spinner {
+    display: inline-block;
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .section-title {
+    font-family: var(--display);
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .section-desc {
+    color: var(--text2);
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 20px 0;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent2);
+    color: white;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    font-family: var(--mono);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--text2);
+  }
+  .empty-state .empty-icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-state p { font-size: 15px; margin-bottom: 8px; color: var(--text); font-family: var(--display); font-weight: 700; }
+  .empty-state span { font-size: 13px; }
+
+  .flex { display: flex; }
+  .gap-8 { gap: 8px; }
+  .gap-12 { gap: 12px; }
+  .items-center { align-items: center; }
+  .justify-between { justify-content: space-between; }
+  .mb-12 { margin-bottom: 12px; }
+  .mb-16 { margin-bottom: 16px; }
+  .mt-8 { margin-top: 8px; }
+  .text-sm { font-size: 13px; }
+  .text-xs { font-size: 11px; font-family: var(--mono); }
+  .text-muted { color: var(--text2); }
+  .text-accent { color: var(--accent); }
+  .text-success { color: var(--success); }
+  .text-warning { color: var(--warning); }
+  .text-danger { color: var(--danger); }
+  .font-mono { font-family: var(--mono); }
+  .font-display { font-family: var(--display); }
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.7);
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--                LOGIN SCREEN                -->
+<!-- ═══════════════════════════════════════════ -->
+<div id="loginScreen" class="screen active">
+  <div class="login-box">
+    <div class="logo">
+      <div class="logo-icon">📋</div>
+      <h1>TimeSheet Pro</h1>
+      <p>Bi-weekly timesheet management</p>
+    </div>
+
+    <div class="tab-switch">
+      <button class="tab-btn active" onclick="switchLoginTab('admin')">Admin</button>
+      <button class="tab-btn" onclick="switchLoginTab('employee')">Employee</button>
+    </div>
+
+    <div id="loginError" class="error-msg"></div>
+
+    <!-- Admin Login -->
+    <div id="adminLoginForm">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="adminUser" placeholder="admin" value="admin">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="adminPass" placeholder="••••••••" value="admin123">
+      </div>
+      <div style="margin-bottom:16px;padding:10px 14px;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.15);border-radius:8px;font-size:12px;color:var(--text2);font-family:var(--mono);">
+        Default: admin / admin123
+      </div>
+      <button class="btn btn-primary" onclick="loginAdmin()">Sign In as Admin</button>
+    </div>
+
+    <!-- Employee Login -->
+    <div id="employeeLoginForm" style="display:none">
+      <div class="form-group">
+        <label>Select Employee</label>
+        <select id="empSelect">
+          <option value="">Choose your name...</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>PIN</label>
+        <input type="password" id="empPin" placeholder="Enter your 4-digit PIN" maxlength="4" inputmode="numeric">
+      </div>
+      <button class="btn btn-primary" onclick="loginEmployee()">Sign In</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--                 APP SCREEN                 -->
+<!-- ═══════════════════════════════════════════ -->
+<div id="appScreen" class="screen">
+
+  <!-- Header -->
+  <div class="app-header">
+    <div class="logo-sm">📋</div>
+    <h2>TimeSheet Pro</h2>
+    <div id="userBadge" class="user-badge">
+      <div id="userAvatar" class="user-avatar"></div>
+      <span id="userName"></span>
+    </div>
+    <button class="logout-btn" onclick="logout()">Sign Out</button>
+  </div>
+
+  <!-- Admin Nav -->
+  <div id="adminNav" class="nav-tabs" style="display:none">
+    <button class="nav-tab active" onclick="switchAdminTab('timesheets')">📋 Timesheets</button>
+    <button class="nav-tab" onclick="switchAdminTab('employees')">👥 Employees</button>
+    <button class="nav-tab" onclick="switchAdminTab('review')">✅ Review <span id="pendingBadge" class="badge" style="display:none">0</span></button>
+    <button class="nav-tab" onclick="switchAdminTab('reports')">📊 Reports</button>
+    <button class="nav-tab" onclick="switchAdminTab('settings')">⚙️ Settings</button>
+  </div>
+
+  <!-- Content -->
+  <div class="content-area">
+
+    <!-- ─── ADMIN: TIMESHEETS TAB ─── -->
+    <div id="tab-timesheets" class="tab-content active">
+      <div class="section-title">Timesheets</div>
+      <div class="section-desc">View and manage bi-weekly timesheets for all employees</div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Pay Period</div>
+            <div class="card-subtitle">Auto-generates 14-day bi-weekly period</div>
+          </div>
+        </div>
+        <div class="period-selector">
+          <div class="form-group">
+            <label>Start Date</label>
+            <input type="date" id="adminStartDate" onchange="updateAdminPeriod()">
+          </div>
+          <div class="form-group">
+            <label>Select Employee</label>
+            <select id="adminEmpSelect" onchange="loadAdminTimesheet()">
+              <option value="">All employees...</option>
+            </select>
+          </div>
+          <div id="adminPeriodInfo" class="period-info">—</div>
+        </div>
+      </div>
+
+      <div id="adminTimesheetArea"></div>
+    </div>
+
+    <!-- ─── ADMIN: EMPLOYEES TAB ─── -->
+    <div id="tab-employees" class="tab-content">
+      <div class="flex items-center justify-between mb-16">
+        <div>
+          <div class="section-title">Employees</div>
+          <div class="section-desc">Manage employee profiles and pay rates</div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openAddEmployee()">+ Add Employee</button>
+      </div>
+      <div id="employeeList"></div>
+    </div>
+
+    <!-- ─── ADMIN: REVIEW TAB ─── -->
+    <div id="tab-review" class="tab-content">
+      <div class="section-title">Review Submissions</div>
+      <div class="section-desc">Approve or reject submitted timesheets</div>
+      <div id="reviewList"></div>
+    </div>
+
+    <!-- ─── ADMIN: REPORTS TAB ─── -->
+    <div id="tab-reports" class="tab-content">
+      <div class="section-title">Payroll Reports</div>
+      <div class="section-desc">Summary of hours and pay for all employees</div>
+
+      <div class="card mb-16">
+        <div class="card-header">
+          <div class="card-title">Filter Period</div>
+        </div>
+        <div class="period-selector">
+          <div class="form-group">
+            <label>Start Date</label>
+            <input type="date" id="reportStartDate" onchange="generateReport()">
+          </div>
+        </div>
+      </div>
+
+      <div id="reportArea"></div>
+    </div>
+
+    <!-- ─── ADMIN: SETTINGS TAB ─── -->
+    <div id="tab-settings" class="tab-content">
+      <div class="section-title">Settings</div>
+      <div class="section-desc">Configure system preferences</div>
+
+      <div class="settings-section">
+        <h3>Admin Credentials</h3>
+        <div class="form-group">
+          <label>Admin Password</label>
+          <input type="password" id="newAdminPass" placeholder="New password">
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="changeAdminPass()">Update Password</button>
+      </div>
+
+      <div class="settings-section">
+        <h3>App Settings</h3>
+        <div class="form-group">
+          <label>Overtime Threshold (hrs/day)</label>
+          <input type="number" id="otThreshold" value="8" min="1" max="24">
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="saveSettings()">Save Settings</button>
+      </div>
+
+      <div class="settings-section">
+        <h3>Data Management</h3>
+        <button class="btn btn-outline btn-sm" onclick="exportData()" style="margin-right:8px">📥 Export All Data</button>
+        <button class="btn btn-danger btn-sm" onclick="clearAllData()">🗑 Clear All Data</button>
+      </div>
+
+      <div class="settings-section">
+        <h3>Install App</h3>
+        <div id="installSection"></div>
+      </div>
+    </div>
+
+    <!-- ─── EMPLOYEE: TIMESHEET VIEW ─── -->
+    <div id="tab-employee-sheet" class="tab-content">
+      <div id="empHeader" class="emp-header" style="display:none"></div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Pay Period</div>
+            <div class="card-subtitle">Select your bi-weekly start date</div>
+          </div>
+        </div>
+        <div class="period-selector">
+          <div class="form-group">
+            <label>Start Date</label>
+            <input type="date" id="empStartDate" onchange="loadEmployeeTimesheet()">
+          </div>
+          <div id="empPeriodInfo" class="period-info">—</div>
+        </div>
+      </div>
+
+      <div class="summary-grid" id="empSummary"></div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Time Entries</div>
+          <div class="card-subtitle">Enter your clock in/out times</div>
+        </div>
+        <div class="timesheet-wrap">
+          <table class="timesheet-table">
+            <thead>
+              <tr>
+                <th>Day</th>
+                <th>Clock In</th>
+                <th>Clock Out</th>
+                <th>Break (min)</th>
+                <th>Hours</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody id="empTimesheetBody"></tbody>
+          </table>
+        </div>
+
+        <div class="submit-section" id="empSubmitSection">
+          <div class="submit-info">
+            <strong id="empTotalDisplay">0.00 hrs</strong>
+            <div id="empPayDisplay" style="color:var(--success);font-family:var(--mono);font-size:13px;margin-top:2px"></div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-outline btn-sm" onclick="saveEmployeeTimesheet()">💾 Save Draft</button>
+            <button class="btn btn-success btn-sm" onclick="submitTimesheet()">✅ Submit Timesheet</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ─── MODALS ─── -->
+
+<!-- Add/Edit Employee -->
+<div id="empModal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="empModalTitle">Add Employee</span>
+      <button class="modal-close" onclick="closeModal('empModal')">×</button>
+    </div>
+    <input type="hidden" id="empModalId">
+    <div class="form-group">
+      <label>Full Name</label>
+      <input type="text" id="empModalName" placeholder="John Smith">
+    </div>
+    <div class="form-group">
+      <label>Job Title</label>
+      <input type="text" id="empModalTitle2" placeholder="e.g. Software Engineer">
+    </div>
+    <div class="form-group">
+      <label>Hourly Rate ($)</label>
+      <input type="number" id="empModalRate" placeholder="25.00" step="0.01" min="0">
+    </div>
+    <div class="form-group">
+      <label>Department</label>
+      <input type="text" id="empModalDept" placeholder="e.g. Engineering">
+    </div>
+    <div class="form-group">
+      <label>Login PIN (4 digits)</label>
+      <input type="password" id="empModalPin" placeholder="1234" maxlength="4" inputmode="numeric">
+    </div>
+    <div class="form-group">
+      <label>Username (for login)</label>
+      <input type="text" id="empModalUsername" placeholder="jsmith">
+    </div>
+    <div class="form-group">
+      <label>Avatar Color</label>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <div class="color-pick c1" onclick="pickColor('c1')" style="width:32px;height:32px;border-radius:8px;cursor:pointer;border:2px solid transparent" id="col-c1"></div>
+        <div class="color-pick c2" onclick="pickColor('c2')" style="width:32px;height:32px;border-radius:8px;cursor:pointer;border:2px solid transparent" id="col-c2"></div>
+        <div class="color-pick c3" onclick="pickColor('c3')" style="width:32px;height:32px;border-radius:8px;cursor:pointer;border:2px solid transparent" id="col-c3"></div>
+        <div class="color-pick c4" onclick="pickColor('c4')" style="width:32px;height:32px;border-radius:8px;cursor:pointer;border:2px solid transparent" id="col-c4"></div>
+        <div class="color-pick c5" onclick="pickColor('c5')" style="width:32px;height:32px;border-radius:8px;cursor:pointer;border:2px solid transparent" id="col-c5"></div>
+        <div class="color-pick c6" onclick="pickColor('c6')" style="width:32px;height:32px;border-radius:8px;cursor:pointer;border:2px solid transparent" id="col-c6"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('empModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEmployee()">Save Employee</button>
+    </div>
+  </div>
+</div>
+
+<!-- View Timesheet Detail -->
+<div id="detailModal" class="modal-overlay">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-title">
+      <span id="detailModalTitle">Timesheet Detail</span>
+      <button class="modal-close" onclick="closeModal('detailModal')">×</button>
+    </div>
+    <div id="detailModalContent"></div>
+    <div class="modal-actions" id="detailModalActions"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+//                    APP STATE
+// ═══════════════════════════════════════════════
+const DB_KEY = 'tspro_v1';
+const ADMIN_KEY = 'tspro_admin';
+
+let currentUser = null; // {role: 'admin'|'employee', id: null|empId}
+let selectedColor = 'c1';
+let deferredInstallPrompt = null;
+
+// ─── DATA LAYER ───
+function getData() {
+  try {
+    const raw = localStorage.getItem(DB_KEY);
+    return raw ? JSON.parse(raw) : getDefaultData();
+  } catch { return getDefaultData(); }
+}
+
+function saveData(data) {
+  localStorage.setItem(DB_KEY, JSON.stringify(data));
+}
+
+function getAdminCreds() {
+  try {
+    const raw = localStorage.getItem(ADMIN_KEY);
+    return raw ? JSON.parse(raw) : { username: 'admin', password: 'admin123', otThreshold: 8 };
+  } catch { return { username: 'admin', password: 'admin123', otThreshold: 8 }; }
+}
+
+function saveAdminCreds(creds) {
+  localStorage.setItem(ADMIN_KEY, JSON.stringify(creds));
+}
+
+function getDefaultData() {
+  return {
+    employees: [
+      { id: 'e1', name: 'Sarah Johnson', title: 'Project Manager', rate: 35.00, dept: 'Management', pin: '1234', username: 'sjohnson', color: 'c1' },
+      { id: 'e2', name: 'Mike Chen', title: 'Software Engineer', rate: 42.50, dept: 'Engineering', pin: '5678', username: 'mchen', color: 'c2' },
+      { id: 'e3', name: 'Emily Davis', title: 'Designer', rate: 30.00, dept: 'Creative', pin: '9012', username: 'edavis', color: 'c3' },
+    ],
+    timesheets: {}  // key: empId_startDate -> {entries, status, submittedAt}
+  };
+}
+
+// ═══════════════════════════════════════════════
+//                    UTILITIES
+// ═══════════════════════════════════════════════
+function formatDate(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function getDayName(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { weekday: 'short' });
+}
+
+function isWeekend(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  const day = d.getDay();
+  return day === 0 || day === 6;
+}
+
+function isToday(dateStr) {
+  return dateStr === new Date().toISOString().split('T')[0];
+}
+
+function getPeriodDates(startDate) {
+  const dates = [];
+  const start = new Date(startDate + 'T00:00:00');
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(start);
+    d.setDate(d.getDate() + i);
+    dates.push(d.toISOString().split('T')[0]);
+  }
+  return dates;
+}
+
+function getEndDate(startDate) {
+  const dates = getPeriodDates(startDate);
+  return dates[dates.length - 1];
+}
+
+function calcHours(clockIn, clockOut, breakMin) {
+  if (!clockIn || !clockOut) return 0;
+  const [ih, im] = clockIn.split(':').map(Number);
+  const [oh, om] = clockOut.split(':').map(Number);
+  const inMins = ih * 60 + im;
+  const outMins = oh * 60 + om;
+  if (outMins <= inMins) return 0;
+  const total = (outMins - inMins - (parseInt(breakMin) || 0)) / 60;
+  return Math.max(0, Math.round(total * 100) / 100);
+}
+
+function formatHours(h) {
+  return h.toFixed(2);
+}
+
+function formatTime12(time24) {
+  if (!time24) return '—';
+  const [h, m] = time24.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 || 12;
+  return `${h12}:${m.toString().padStart(2, '0')} ${ampm}`;
+}
+
+function getAmPm(time24) {
+  if (!time24) return '';
+  const h = parseInt(time24.split(':')[0]);
+  return h >= 12 ? 'PM' : 'AM';
+}
+
+function formatCurrency(amount) {
+  return '$' + amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function getColorHex(colorClass) {
+  const map = { c1: '#00D4FF', c2: '#FF6B35', c3: '#00E5A0', c4: '#FFD166', c5: '#C77DFF', c6: '#FF4757' };
+  return map[colorClass] || '#00D4FF';
+}
+
+function getInitials(name) {
+  return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+}
+
+function tsKey(empId, startDate) {
+  return `${empId}_${startDate}`;
+}
+
+function today() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function getCurrentBiweeklyStart() {
+  const d = new Date();
+  const dayOfYear = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
+  const periodNum = Math.floor((dayOfYear - 1) / 14);
+  const start = new Date(d.getFullYear(), 0, 1 + periodNum * 14);
+  return start.toISOString().split('T')[0];
+}
+
+// ═══════════════════════════════════════════════
+//                    TOAST
+// ═══════════════════════════════════════════════
+function showToast(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+  t.textContent = `${icons[type]} ${msg}`;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ═══════════════════════════════════════════════
+//                    AUTH
+// ═══════════════════════════════════════════════
+let loginMode = 'admin';
+
+function switchLoginTab(mode) {
+  loginMode = mode;
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', (i === 0 && mode === 'admin') || (i === 1 && mode === 'employee'));
+  });
+  document.getElementById('adminLoginForm').style.display = mode === 'admin' ? 'block' : 'none';
+  document.getElementById('employeeLoginForm').style.display = mode === 'employee' ? 'block' : 'none';
+  document.getElementById('loginError').classList.remove('show');
+
+  if (mode === 'employee') populateEmpSelect();
+}
+
+function populateEmpSelect() {
+  const data = getData();
+  const sel = document.getElementById('empSelect');
+  sel.innerHTML = '<option value="">Choose your name...</option>';
+  data.employees.forEach(e => {
+    sel.innerHTML += `<option value="${e.id}">${e.name}</option>`;
+  });
+}
+
+function loginAdmin() {
+  const user = document.getElementById('adminUser').value.trim();
+  const pass = document.getElementById('adminPass').value;
+  const creds = getAdminCreds();
+
+  if (user === creds.username && pass === creds.password) {
+    currentUser = { role: 'admin' };
+    showApp('admin');
+  } else {
+    showLoginError('Invalid username or password');
+  }
+}
+
+function loginEmployee() {
+  const empId = document.getElementById('empSelect').value;
+  const pin = document.getElementById('empPin').value;
+  const data = getData();
+  const emp = data.employees.find(e => e.id === empId);
+
+  if (!empId) { showLoginError('Please select your name'); return; }
+  if (!emp) { showLoginError('Employee not found'); return; }
+  if (pin !== emp.pin) { showLoginError('Incorrect PIN'); return; }
+
+  currentUser = { role: 'employee', id: empId };
+  showApp('employee');
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('loginError');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+function logout() {
+  currentUser = null;
+  document.getElementById('loginScreen').classList.add('active');
+  document.getElementById('appScreen').classList.remove('active');
+  document.getElementById('loginScreen').style.display = '';
+  document.getElementById('appScreen').style.display = '';
+  document.getElementById('empPin').value = '';
+  document.getElementById('loginError').classList.remove('show');
+}
+
+function showApp(role) {
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('appScreen').classList.add('active');
+
+  const data = getData();
+  const isAdmin = role === 'admin';
+
+  // User badge
+  const badge = document.getElementById('userBadge');
+  badge.className = `user-badge role-${role}`;
+
+  if (isAdmin) {
+    document.getElementById('userAvatar').textContent = 'A';
+    document.getElementById('userName').textContent = 'Admin';
+    document.getElementById('userAvatar').style.background = 'var(--accent2)';
+    document.getElementById('adminNav').style.display = 'flex';
+    populateAdminSelects();
+    setDefaultDates();
+    switchAdminTab('timesheets');
+    loadInstallSection();
+  } else {
+    const emp = data.employees.find(e => e.id === currentUser.id);
+    document.getElementById('userAvatar').textContent = getInitials(emp.name);
+    document.getElementById('userName').textContent = emp.name.split(' ')[0];
+    document.getElementById('userAvatar').style.background = getColorHex(emp.color);
+    document.getElementById('adminNav').style.display = 'none';
+
+    // Show employee tab only
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-employee-sheet').classList.add('active');
+
+    loadEmployeeView(emp);
+  }
+}
+
+// ═══════════════════════════════════════════════
+//               ADMIN FUNCTIONS
+// ═══════════════════════════════════════════════
+function switchAdminTab(tab) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+
+  const tabs = ['timesheets', 'employees', 'review', 'reports', 'settings'];
+  const idx = tabs.indexOf(tab);
+  document.querySelectorAll('.nav-tab')[idx]?.classList.add('active');
+  document.getElementById(`tab-${tab}`)?.classList.add('active');
+
+  if (tab === 'employees') renderEmployeeList();
+  if (tab === 'review') renderReviewList();
+  if (tab === 'reports') generateReport();
+  if (tab === 'timesheets') loadAdminTimesheet();
+}
+
+function setDefaultDates() {
+  const start = getCurrentBiweeklyStart();
+  document.getElementById('adminStartDate').value = start;
+  document.getElementById('reportStartDate').value = start;
+  updateAdminPeriod();
+}
+
+function populateAdminSelects() {
+  const data = getData();
+  const sels = ['adminEmpSelect'];
+  sels.forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const prev = sel.value;
+    sel.innerHTML = '<option value="">All employees...</option>';
+    data.employees.forEach(e => {
+      sel.innerHTML += `<option value="${e.id}">${e.name}</option>`;
+    });
+    if (prev) sel.value = prev;
+  });
+}
+
+function updateAdminPeriod() {
+  const start = document.getElementById('adminStartDate').value;
+  if (!start) return;
+  const end = getEndDate(start);
+  document.getElementById('adminPeriodInfo').textContent = `${formatDate(start)} – ${formatDate(end)}`;
+  loadAdminTimesheet();
+}
+
+function loadAdminTimesheet() {
+  const start = document.getElementById('adminStartDate').value;
+  const selectedEmp = document.getElementById('adminEmpSelect').value;
+  if (!start) { document.getElementById('adminTimesheetArea').innerHTML = ''; return; }
+
+  const data = getData();
+  const emps = selectedEmp ? data.employees.filter(e => e.id === selectedEmp) : data.employees;
+
+  let html = '';
+  emps.forEach(emp => {
+    const key = tsKey(emp.id, start);
+    const ts = data.timesheets[key] || { entries: {}, status: 'empty' };
+    const dates = getPeriodDates(start);
+
+    let totalHrs = 0;
+    dates.forEach(d => {
+      const e = ts.entries[d] || {};
+      totalHrs += calcHours(e.clockIn, e.clockOut, e.breakMin);
+    });
+
+    const totalPay = totalHrs * emp.rate;
+    const statusMap = { submitted: 'status-submitted', approved: 'status-approved', pending: 'status-pending', empty: 'status-empty' };
+
+    html += `
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="emp-avatar" style="background:${getColorHex(emp.color)};width:40px;height:40px;border-radius:10px;font-size:14px">${getInitials(emp.name)}</div>
+          <div>
+            <div style="font-family:var(--display);font-weight:700;font-size:15px">${emp.name}</div>
+            <div style="font-size:12px;color:var(--text2);font-family:var(--mono)">${emp.title} • ${formatCurrency(emp.rate)}/hr</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <span class="status-pill ${statusMap[ts.status] || 'status-empty'}">${ts.status || 'empty'}</span>
+          <button class="btn btn-outline btn-xs" onclick="viewTimesheetDetail('${emp.id}', '${start}')">View Detail</button>
+        </div>
+      </div>
+      <div class="summary-grid" style="margin-bottom:0">
+        <div class="stat-card">
+          <div class="stat-label">Total Hours</div>
+          <div class="stat-value stat-accent">${formatHours(totalHrs)}</div>
+          <div class="stat-sub">hrs this period</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Pay</div>
+          <div class="stat-value stat-success">${formatCurrency(totalPay)}</div>
+          <div class="stat-sub">@ ${formatCurrency(emp.rate)}/hr</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Days Worked</div>
+          <div class="stat-value stat-orange">${dates.filter(d => { const e = ts.entries[d]||{}; return e.clockIn && e.clockOut; }).length}</div>
+          <div class="stat-sub">of 14 days</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Status</div>
+          <div class="stat-value" style="font-size:18px">${ts.status === 'approved' ? '✅' : ts.status === 'submitted' ? '📤' : '📝'}</div>
+          <div class="stat-sub">${ts.status || 'not started'}</div>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  if (!html) html = `<div class="empty-state"><div class="empty-icon">📋</div><p>No employees found</p><span>Add employees to get started</span></div>`;
+  document.getElementById('adminTimesheetArea').innerHTML = html;
+}
+
+function viewTimesheetDetail(empId, startDate) {
+  const data = getData();
+  const emp = data.employees.find(e => e.id === empId);
+  const key = tsKey(empId, startDate);
+  const ts = data.timesheets[key] || { entries: {}, status: 'empty' };
+  const dates = getPeriodDates(startDate);
+  const creds = getAdminCreds();
+
+  document.getElementById('detailModalTitle').textContent = `${emp.name} — ${formatDate(startDate)}`;
+
+  let rows = '';
+  let totalHrs = 0;
+  dates.forEach(d => {
+    const e = ts.entries[d] || {};
+    const hrs = calcHours(e.clockIn, e.clockOut, e.breakMin);
+    totalHrs += hrs;
+    const weekend = isWeekend(d) ? 'weekend' : '';
+    const otClass = hrs > (creds.otThreshold || 8) ? 'overtime' : '';
+    rows += `
+    <tr class="${weekend}">
+      <td class="day-label">
+        <div class="day-name">${getDayName(d)}</div>
+        <div class="day-date">${formatDate(d)}</div>
+      </td>
+      <td>
+        ${e.clockIn ? `<span>${formatTime12(e.clockIn)}</span> <span class="ampm-badge ampm-${getAmPm(e.clockIn).toLowerCase()}">${getAmPm(e.clockIn)}</span>` : '<span style="color:var(--text3)">—</span>'}
+      </td>
+      <td>
+        ${e.clockOut ? `<span>${formatTime12(e.clockOut)}</span> <span class="ampm-badge ampm-${getAmPm(e.clockOut).toLowerCase()}">${getAmPm(e.clockOut)}</span>` : '<span style="color:var(--text3)">—</span>'}
+      </td>
+      <td style="color:var(--text2);font-family:var(--mono);font-size:12px">${e.breakMin || '0'} min</td>
+      <td class="hours-cell ${hrs === 0 ? 'zero' : otClass}">${hrs > 0 ? formatHours(hrs) : '—'}</td>
+      <td style="font-size:12px;color:var(--text2)">${e.notes || ''}</td>
+    </tr>`;
+  });
+
+  const totalPay = totalHrs * emp.rate;
+
+  document.getElementById('detailModalContent').innerHTML = `
+    <div class="summary-grid mb-16">
+      <div class="stat-card">
+        <div class="stat-label">Total Hours</div>
+        <div class="stat-value stat-accent">${formatHours(totalHrs)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Pay</div>
+        <div class="stat-value stat-success">${formatCurrency(totalPay)}</div>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="timesheet-table">
+        <thead><tr><th>Day</th><th>In</th><th>Out</th><th>Break</th><th>Hours</th><th>Notes</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    ${ts.submittedAt ? `<div style="margin-top:12px;font-size:12px;color:var(--text2);font-family:var(--mono)">Submitted: ${new Date(ts.submittedAt).toLocaleString()}</div>` : ''}
+  `;
+
+  const actionsHtml = ts.status === 'submitted' ? `
+    <button class="btn btn-danger" onclick="updateTsStatus('${empId}','${startDate}','rejected')">Reject</button>
+    <button class="btn btn-success" onclick="updateTsStatus('${empId}','${startDate}','approved')">Approve</button>
+  ` : ts.status === 'approved' ? `
+    <button class="btn btn-outline" onclick="closeModal('detailModal')">Close</button>
+    <span style="color:var(--success);font-size:13px;font-family:var(--mono)">✅ Approved</span>
+  ` : `<button class="btn btn-outline" onclick="closeModal('detailModal')">Close</button>`;
+
+  document.getElementById('detailModalActions').innerHTML = actionsHtml;
+  document.getElementById('detailModal').classList.add('show');
+}
+
+function updateTsStatus(empId, startDate, status) {
+  const data = getData();
+  const key = tsKey(empId, startDate);
+  if (!data.timesheets[key]) data.timesheets[key] = { entries: {}, status: 'empty' };
+  data.timesheets[key].status = status;
+  data.timesheets[key].reviewedAt = new Date().toISOString();
+  saveData(data);
+  closeModal('detailModal');
+  renderReviewList();
+  loadAdminTimesheet();
+  showToast(`Timesheet ${status}!`, status === 'approved' ? 'success' : 'error');
+}
+
+// ─── EMPLOYEE LIST ───
+function renderEmployeeList() {
+  const data = getData();
+  const container = document.getElementById('employeeList');
+
+  if (!data.employees.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">👥</div><p>No employees yet</p><span>Click "Add Employee" to get started</span></div>`;
+    return;
+  }
+
+  container.innerHTML = data.employees.map(emp => `
+    <div class="employee-card">
+      <div class="emp-avatar ${emp.color}" style="background:${getColorHex(emp.color)};width:44px;height:44px;border-radius:12px;font-family:var(--display);font-size:15px;font-weight:800;color:#0F1923;display:flex;align-items:center;justify-content:center;flex-shrink:0">${getInitials(emp.name)}</div>
+      <div class="emp-info">
+        <div class="emp-name">${emp.name}</div>
+        <div class="emp-details">
+          <span>💼 ${emp.title}</span>
+          <span>🏢 ${emp.dept}</span>
+          <span style="color:var(--success)">💵 ${formatCurrency(emp.rate)}/hr</span>
+          <span style="color:var(--text3)">@${emp.username || '—'}</span>
+        </div>
+      </div>
+      <div class="emp-actions">
+        <button class="btn btn-outline btn-xs" onclick="editEmployee('${emp.id}')">Edit</button>
+        <button class="btn btn-danger btn-xs" onclick="deleteEmployee('${emp.id}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openAddEmployee() {
+  selectedColor = 'c1';
+  document.getElementById('empModalTitle').textContent = 'Add Employee';
+  document.getElementById('empModalId').value = '';
+  ['Name','Title2','Rate','Dept','Pin','Username'].forEach(f => document.getElementById('empModal'+f).value = '');
+  updateColorPickers();
+  document.getElementById('empModal').classList.add('show');
+}
+
+function editEmployee(id) {
+  const data = getData();
+  const emp = data.employees.find(e => e.id === id);
+  if (!emp) return;
+
+  document.getElementById('empModalTitle').textContent = 'Edit Employee';
+  document.getElementById('empModalId').value = emp.id;
+  document.getElementById('empModalName').value = emp.name;
+  document.getElementById('empModalTitle2').value = emp.title;
+  document.getElementById('empModalRate').value = emp.rate;
+  document.getElementById('empModalDept').value = emp.dept;
+  document.getElementById('empModalPin').value = emp.pin;
+  document.getElementById('empModalUsername').value = emp.username || '';
+  selectedColor = emp.color || 'c1';
+  updateColorPickers();
+  document.getElementById('empModal').classList.add('show');
+}
+
+function pickColor(c) {
+  selectedColor = c;
+  updateColorPickers();
+}
+
+function updateColorPickers() {
+  document.querySelectorAll('.color-pick').forEach(el => {
+    const id = el.id.replace('col-', '');
+    el.style.border = id === selectedColor ? '2px solid white' : '2px solid transparent';
+    el.style.transform = id === selectedColor ? 'scale(1.2)' : 'scale(1)';
+  });
+}
+
+function saveEmployee() {
+  const id = document.getElementById('empModalId').value;
+  const name = document.getElementById('empModalName').value.trim();
+  const title = document.getElementById('empModalTitle2').value.trim();
+  const rate = parseFloat(document.getElementById('empModalRate').value);
+  const dept = document.getElementById('empModalDept').value.trim();
+  const pin = document.getElementById('empModalPin').value.trim();
+  const username = document.getElementById('empModalUsername').value.trim();
+
+  if (!name || !title || isNaN(rate) || !pin) {
+    showToast('Please fill in all required fields', 'error');
+    return;
+  }
+  if (pin.length !== 4 || !/^\d+$/.test(pin)) {
+    showToast('PIN must be 4 digits', 'error');
+    return;
+  }
+
+  const data = getData();
+
+  if (id) {
+    const emp = data.employees.find(e => e.id === id);
+    if (emp) Object.assign(emp, { name, title, rate, dept, pin, username, color: selectedColor });
+  } else {
+    const newEmp = { id: 'e' + Date.now(), name, title, rate, dept, pin, username, color: selectedColor };
+    data.employees.push(newEmp);
+  }
+
+  saveData(data);
+  closeModal('empModal');
+  renderEmployeeList();
+  populateAdminSelects();
+  showToast(id ? 'Employee updated!' : 'Employee added!', 'success');
+}
+
+function deleteEmployee(id) {
+  if (!confirm('Delete this employee? Their timesheet data will also be removed.')) return;
+  const data = getData();
+  data.employees = data.employees.filter(e => e.id !== id);
+  // Remove timesheets
+  Object.keys(data.timesheets).forEach(k => { if (k.startsWith(id + '_')) delete data.timesheets[k]; });
+  saveData(data);
+  renderEmployeeList();
+  populateAdminSelects();
+  showToast('Employee deleted', 'info');
+}
+
+// ─── REVIEW LIST ───
+function renderReviewList() {
+  const data = getData();
+  const container = document.getElementById('reviewList');
+
+  const pending = [];
+  Object.entries(data.timesheets).forEach(([key, ts]) => {
+    if (ts.status === 'submitted') {
+      const [empId, startDate] = key.split('_');
+      const emp = data.employees.find(e => e.id === empId);
+      if (emp) pending.push({ key, empId, startDate, emp, ts });
+    }
+  });
+
+  // Update badge
+  const badge = document.getElementById('pendingBadge');
+  badge.textContent = pending.length;
+  badge.style.display = pending.length ? 'inline-flex' : 'none';
+
+  if (!pending.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">✅</div><p>All caught up!</p><span>No pending submissions to review</span></div>`;
+    return;
+  }
+
+  container.innerHTML = pending.map(({ key, empId, startDate, emp, ts }) => {
+    const dates = getPeriodDates(startDate);
+    let totalHrs = 0;
+    dates.forEach(d => {
+      const e = ts.entries[d] || {};
+      totalHrs += calcHours(e.clockIn, e.clockOut, e.breakMin);
+    });
+    const totalPay = totalHrs * emp.rate;
+
+    return `
+    <div class="review-card" id="review-${key}">
+      <div class="review-header" onclick="toggleReview('${key}')">
+        <div class="emp-avatar" style="background:${getColorHex(emp.color)};width:38px;height:38px;border-radius:10px;font-size:13px;font-family:var(--display);font-weight:800;color:#0F1923;display:flex;align-items:center;justify-content:center;flex-shrink:0">${getInitials(emp.name)}</div>
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:14px">${emp.name}</div>
+          <div style="font-size:12px;color:var(--text2);font-family:var(--mono)">${formatDate(startDate)} – ${formatDate(getEndDate(startDate))}</div>
+        </div>
+        <div style="text-align:right;font-family:var(--mono);font-size:13px">
+          <div style="color:var(--accent)">${formatHours(totalHrs)} hrs</div>
+          <div style="color:var(--success)">${formatCurrency(totalPay)}</div>
+        </div>
+        <div class="review-toggle">▼</div>
+      </div>
+      <div class="review-body" style="display:none" id="review-body-${key}">
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="btn btn-outline btn-sm" onclick="viewTimesheetDetail('${empId}','${startDate}')">View Detail</button>
+          <button class="btn btn-danger btn-sm" onclick="updateTsStatus('${empId}','${startDate}','rejected')">Reject</button>
+          <button class="btn btn-success btn-sm" onclick="updateTsStatus('${empId}','${startDate}','approved')">Approve</button>
+        </div>
+        ${ts.submittedAt ? `<div style="margin-top:10px;font-size:11px;color:var(--text3);font-family:var(--mono)">Submitted: ${new Date(ts.submittedAt).toLocaleString()}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleReview(key) {
+  const card = document.getElementById('review-' + key);
+  const body = document.getElementById('review-body-' + key);
+  card.classList.toggle('expanded');
+  body.style.display = card.classList.contains('expanded') ? 'block' : 'none';
+}
+
+// ─── REPORTS ───
+function generateReport() {
+  const start = document.getElementById('reportStartDate').value;
+  if (!start) return;
+
+  const data = getData();
+  const end = getEndDate(start);
+  const dates = getPeriodDates(start);
+
+  let grandHrs = 0, grandPay = 0;
+
+  const rows = data.employees.map(emp => {
+    const key = tsKey(emp.id, start);
+    const ts = data.timesheets[key] || { entries: {}, status: 'empty' };
+    let totalHrs = 0;
+    dates.forEach(d => {
+      const e = ts.entries[d] || {};
+      totalHrs += calcHours(e.clockIn, e.clockOut, e.breakMin);
+    });
+    const pay = totalHrs * emp.rate;
+    grandHrs += totalHrs;
+    grandPay += pay;
+    const statusMap = { submitted: 'status-submitted', approved: 'status-approved', empty: 'status-empty', rejected: 'status-empty' };
+
+    return `
+    <tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:32px;height:32px;border-radius:8px;background:${getColorHex(emp.color)};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;font-family:var(--display);color:#0F1923;flex-shrink:0">${getInitials(emp.name)}</div>
+          <div>
+            <div style="font-weight:600;font-size:14px">${emp.name}</div>
+            <div style="font-size:11px;color:var(--text2)">${emp.title}</div>
+          </div>
+        </div>
+      </td>
+      <td style="font-family:var(--mono);font-size:13px;color:var(--text2)">${formatCurrency(emp.rate)}/hr</td>
+      <td class="hours-cell ${totalHrs === 0 ? 'zero' : ''}">${formatHours(totalHrs)}</td>
+      <td style="font-family:var(--mono);font-size:13px;color:var(--success);font-weight:600">${formatCurrency(pay)}</td>
+      <td><span class="status-pill ${statusMap[ts.status] || 'status-empty'}">${ts.status || 'pending'}</span></td>
+      <td><button class="btn btn-outline btn-xs" onclick="viewTimesheetDetail('${emp.id}','${start}')">View</button></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('reportArea').innerHTML = `
+    <div class="summary-grid mb-16">
+      <div class="stat-card">
+        <div class="stat-label">Total Hours</div>
+        <div class="stat-value stat-accent">${formatHours(grandHrs)}</div>
+        <div class="stat-sub">all employees</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Payroll</div>
+        <div class="stat-value stat-success">${formatCurrency(grandPay)}</div>
+        <div class="stat-sub">${formatDate(start)} – ${formatDate(end)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Employees</div>
+        <div class="stat-value stat-orange">${data.employees.length}</div>
+        <div class="stat-sub">active</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="timesheet-wrap">
+        <table class="timesheet-table">
+          <thead><tr><th>Employee</th><th>Rate</th><th>Hours</th><th>Pay</th><th>Status</th><th></th></tr></thead>
+          <tbody>${rows}</tbody>
+          <tfoot>
+            <tr style="background:var(--surface2)">
+              <td colspan="2" style="padding:12px;font-weight:700;font-family:var(--display)">TOTALS</td>
+              <td style="padding:12px;font-family:var(--mono);color:var(--accent);font-weight:700">${formatHours(grandHrs)}</td>
+              <td style="padding:12px;font-family:var(--mono);color:var(--success);font-weight:700">${formatCurrency(grandPay)}</td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+// ─── SETTINGS ───
+function changeAdminPass() {
+  const newPass = document.getElementById('newAdminPass').value;
+  if (!newPass || newPass.length < 6) { showToast('Password must be at least 6 characters', 'error'); return; }
+  const creds = getAdminCreds();
+  creds.password = newPass;
+  saveAdminCreds(creds);
+  document.getElementById('newAdminPass').value = '';
+  showToast('Password updated!', 'success');
+}
+
+function saveSettings() {
+  const ot = parseInt(document.getElementById('otThreshold').value);
+  const creds = getAdminCreds();
+  creds.otThreshold = ot;
+  saveAdminCreds(creds);
+  showToast('Settings saved!', 'success');
+}
+
+function exportData() {
+  const data = getData();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `timesheet_export_${today()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Data exported!', 'success');
+}
+
+function clearAllData() {
+  if (!confirm('This will delete ALL timesheet data. This cannot be undone. Continue?')) return;
+  const data = getDefaultData();
+  saveData(data);
+  showToast('All data cleared', 'info');
+  renderEmployeeList();
+  loadAdminTimesheet();
+}
+
+// ═══════════════════════════════════════════════
+//             EMPLOYEE FUNCTIONS
+// ═══════════════════════════════════════════════
+function loadEmployeeView(emp) {
+  // Header
+  const header = document.getElementById('empHeader');
+  header.style.display = 'flex';
+  header.innerHTML = `
+    <div class="emp-avatar-lg" style="background:${getColorHex(emp.color)}">${getInitials(emp.name)}</div>
+    <div class="emp-header-info">
+      <h3>${emp.name}</h3>
+      <p>${emp.title} • ${emp.dept} • <span style="color:var(--success)">${formatCurrency(emp.rate)}/hr</span></p>
+    </div>
+  `;
+
+  // Set default dates
+  const start = getCurrentBiweeklyStart();
+  document.getElementById('empStartDate').value = start;
+  loadEmployeeTimesheet();
+}
+
+function loadEmployeeTimesheet() {
+  const start = document.getElementById('empStartDate').value;
+  if (!start || !currentUser) return;
+
+  const end = getEndDate(start);
+  document.getElementById('empPeriodInfo').textContent = `${formatDate(start)} – ${formatDate(end)}`;
+
+  const data = getData();
+  const emp = data.employees.find(e => e.id === currentUser.id);
+  if (!emp) return;
+
+  const key = tsKey(emp.id, start);
+  const ts = data.timesheets[key] || { entries: {}, status: 'empty' };
+  const dates = getPeriodDates(start);
+  const creds = getAdminCreds();
+  const isLocked = ts.status === 'submitted' || ts.status === 'approved';
+
+  let totalHrs = 0;
+  let workedDays = 0;
+
+  const rows = dates.map(d => {
+    const e = ts.entries[d] || {};
+    const hrs = calcHours(e.clockIn, e.clockOut, e.breakMin);
+    totalHrs += hrs;
+    if (e.clockIn && e.clockOut) workedDays++;
+    const weekend = isWeekend(d);
+    const todayRow = isToday(d);
+    const otClass = hrs > (creds.otThreshold || 8) ? 'overtime' : '';
+
+    const inAmPm = e.clockIn ? `<span class="ampm-badge ampm-${getAmPm(e.clockIn).toLowerCase()}">${getAmPm(e.clockIn)}</span>` : '';
+    const outAmPm = e.clockOut ? `<span class="ampm-badge ampm-${getAmPm(e.clockOut).toLowerCase()}">${getAmPm(e.clockOut)}</span>` : '';
+
+    return `
+    <tr class="${weekend ? 'weekend' : ''} ${todayRow ? 'today' : ''}">
+      <td class="day-label">
+        <div class="day-name">${getDayName(d)} ${todayRow ? '• today' : ''}</div>
+        <div class="day-date">${formatDate(d)}</div>
+      </td>
+      <td>
+        <div class="time-input-wrap">
+          <input type="time" value="${e.clockIn || ''}" ${isLocked ? 'disabled' : ''} onchange="updateEntry('${d}', 'clockIn', this.value)">
+          ${inAmPm}
+        </div>
+      </td>
+      <td>
+        <div class="time-input-wrap">
+          <input type="time" value="${e.clockOut || ''}" ${isLocked ? 'disabled' : ''} onchange="updateEntry('${d}', 'clockOut', this.value)">
+          ${outAmPm}
+        </div>
+      </td>
+      <td>
+        <input type="number" min="0" max="120" placeholder="0" value="${e.breakMin || ''}" ${isLocked ? 'disabled' : ''} 
+          style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-family:var(--mono);font-size:13px;width:70px;outline:none"
+          onchange="updateEntry('${d}', 'breakMin', this.value)">
+      </td>
+      <td class="hours-cell ${hrs === 0 ? 'zero' : otClass}">${hrs > 0 ? formatHours(hrs) : '—'}</td>
+      <td>
+        <input type="text" placeholder="Optional..." value="${e.notes || ''}" ${isLocked ? 'disabled' : ''}
+          style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-size:12px;width:120px;outline:none"
+          onchange="updateEntry('${d}', 'notes', this.value)">
+      </td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('empTimesheetBody').innerHTML = rows;
+
+  // Summary
+  const totalPay = totalHrs * emp.rate;
+  const overtimeHrs = Math.max(0, dates.reduce((sum, d) => {
+    const e = ts.entries[d] || {};
+    const hrs = calcHours(e.clockIn, e.clockOut, e.breakMin);
+    return sum + Math.max(0, hrs - (creds.otThreshold || 8));
+  }, 0));
+
+  document.getElementById('empSummary').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-label">Total Hours</div>
+      <div class="stat-value stat-accent">${formatHours(totalHrs)}</div>
+      <div class="stat-sub">this period</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Gross Pay</div>
+      <div class="stat-value stat-success">${formatCurrency(totalPay)}</div>
+      <div class="stat-sub">@ ${formatCurrency(emp.rate)}/hr</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Days Worked</div>
+      <div class="stat-value stat-orange">${workedDays}</div>
+      <div class="stat-sub">of 14 days</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Status</div>
+      <div class="stat-value" style="font-size:18px">${ts.status === 'approved' ? '✅' : ts.status === 'submitted' ? '📤' : '📝'}</div>
+      <div class="stat-sub">${ts.status || 'draft'}</div>
+    </div>
+  `;
+
+  document.getElementById('empTotalDisplay').textContent = `${formatHours(totalHrs)} hrs`;
+  document.getElementById('empPayDisplay').textContent = `Estimated Pay: ${formatCurrency(totalPay)}`;
+
+  // Submit section
+  const submitSection = document.getElementById('empSubmitSection');
+  if (isLocked) {
+    const statusMap = { submitted: ['📤', 'Submitted for review', 'var(--accent)'], approved: ['✅', 'Approved by admin', 'var(--success)'] };
+    const [icon, msg, color] = statusMap[ts.status] || ['📝', 'Draft', 'var(--text2)'];
+    submitSection.innerHTML = `
+      <div class="submit-info">
+        <strong>${icon} ${msg}</strong>
+        ${ts.status === 'approved' ? '<div style="color:var(--success);font-size:12px;font-family:var(--mono)">Your timesheet has been approved</div>' : ''}
+      </div>
+      ${ts.status === 'submitted' ? `<button class="btn btn-outline btn-sm" onclick="unsubmitTimesheet()">↩ Unsubmit</button>` : ''}
+    `;
+  } else {
+    submitSection.innerHTML = `
+      <div class="submit-info">
+        <strong id="empTotalDisplay">${formatHours(totalHrs)} hrs</strong>
+        <div id="empPayDisplay" style="color:var(--success);font-family:var(--mono);font-size:13px;margin-top:2px">Estimated Pay: ${formatCurrency(totalPay)}</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-outline btn-sm" onclick="saveEmployeeTimesheet()">💾 Save Draft</button>
+        <button class="btn btn-success btn-sm" onclick="submitTimesheet()">✅ Submit Timesheet</button>
+      </div>
+    `;
+  }
+}
+
+// In-memory temp entries during editing
+let tempEntries = {};
+
+function updateEntry(date, field, value) {
+  const start = document.getElementById('empStartDate').value;
+  const data = getData();
+  const key = tsKey(currentUser.id, start);
+  if (!data.timesheets[key]) data.timesheets[key] = { entries: {}, status: 'draft' };
+  if (!data.timesheets[key].entries[date]) data.timesheets[key].entries[date] = {};
+  data.timesheets[key].entries[date][field] = value;
+
+  // Recalc hours live
+  const e = data.timesheets[key].entries[date];
+  const hrs = calcHours(e.clockIn, e.clockOut, e.breakMin);
+  const emp = data.employees.find(emp => emp.id === currentUser.id);
+  const creds = getAdminCreds();
+
+  // Update hours cell in same row
+  const allRows = document.querySelectorAll('#empTimesheetBody tr');
+  const dates = getPeriodDates(start);
+  const rowIdx = dates.indexOf(date);
+  if (rowIdx >= 0 && allRows[rowIdx]) {
+    const hrsCell = allRows[rowIdx].querySelector('.hours-cell');
+    if (hrsCell) {
+      hrsCell.textContent = hrs > 0 ? formatHours(hrs) : '—';
+      hrsCell.className = `hours-cell ${hrs === 0 ? 'zero' : hrs > (creds.otThreshold || 8) ? 'overtime' : ''}`;
+    }
+    // Update AM/PM badges
+    const timeInputs = allRows[rowIdx].querySelectorAll('.time-input-wrap');
+    timeInputs.forEach((wrap, i) => {
+      const timeVal = i === 0 ? e.clockIn : e.clockOut;
+      let badge = wrap.querySelector('.ampm-badge');
+      if (timeVal) {
+        const ampm = getAmPm(timeVal);
+        if (!badge) { badge = document.createElement('span'); wrap.appendChild(badge); }
+        badge.className = `ampm-badge ampm-${ampm.toLowerCase()}`;
+        badge.textContent = ampm;
+      } else if (badge) badge.textContent = '';
+    });
+  }
+
+  // Update totals
+  let totalHrs = 0;
+  dates.forEach(d => {
+    const ent = data.timesheets[key].entries[d] || {};
+    totalHrs += calcHours(ent.clockIn, ent.clockOut, ent.breakMin);
+  });
+  const totalPay = totalHrs * emp.rate;
+  const td = document.getElementById('empTotalDisplay');
+  const pd = document.getElementById('empPayDisplay');
+  if (td) td.textContent = `${formatHours(totalHrs)} hrs`;
+  if (pd) pd.textContent = `Estimated Pay: ${formatCurrency(totalPay)}`;
+
+  // Auto-save
+  saveData(data);
+}
+
+function saveEmployeeTimesheet() {
+  const start = document.getElementById('empStartDate').value;
+  if (!start) { showToast('Select a pay period first', 'error'); return; }
+  const data = getData();
+  const key = tsKey(currentUser.id, start);
+  if (!data.timesheets[key]) data.timesheets[key] = { entries: {}, status: 'draft' };
+  if (data.timesheets[key].status !== 'submitted' && data.timesheets[key].status !== 'approved') {
+    data.timesheets[key].status = 'draft';
+  }
+  data.timesheets[key].savedAt = new Date().toISOString();
+  saveData(data);
+  showToast('Timesheet saved!', 'success');
+}
+
+function submitTimesheet() {
+  const start = document.getElementById('empStartDate').value;
+  if (!start) { showToast('Select a pay period first', 'error'); return; }
+  if (!confirm('Submit this timesheet for review? You can unsubmit if needed.')) return;
+
+  const data = getData();
+  const key = tsKey(currentUser.id, start);
+  if (!data.timesheets[key]) data.timesheets[key] = { entries: {}, status: 'draft' };
+  data.timesheets[key].status = 'submitted';
+  data.timesheets[key].submittedAt = new Date().toISOString();
+  saveData(data);
+  showToast('Timesheet submitted for review!', 'success');
+  loadEmployeeTimesheet();
+}
+
+function unsubmitTimesheet() {
+  const start = document.getElementById('empStartDate').value;
+  const data = getData();
+  const key = tsKey(currentUser.id, start);
+  if (data.timesheets[key]) {
+    data.timesheets[key].status = 'draft';
+    delete data.timesheets[key].submittedAt;
+  }
+  saveData(data);
+  showToast('Timesheet unsubmitted', 'info');
+  loadEmployeeTimesheet();
+}
+
+// ═══════════════════════════════════════════════
+//                MODAL UTILITIES
+// ═══════════════════════════════════════════════
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+}
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('show');
+  });
+});
+
+// ═══════════════════════════════════════════════
+//                  PWA / INSTALL
+// ═══════════════════════════════════════════════
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  loadInstallSection();
+});
+
+function loadInstallSection() {
+  const section = document.getElementById('installSection');
+  if (!section) return;
+
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+  if (isStandalone) {
+    section.innerHTML = `<div style="color:var(--success);font-family:var(--mono);font-size:13px">✅ App is installed and running in standalone mode</div>`;
+    return;
+  }
+
+  if (isIOS) {
+    section.innerHTML = `
+      <div class="install-banner">
+        <div class="install-icon">📱</div>
+        <div>
+          <div class="install-text"><strong>Install on iPhone / iPad</strong></div>
+          <div class="ios-install-steps">
+            1. Tap the <strong>Share</strong> button (box with arrow) in Safari<br>
+            2. Scroll down and tap <strong>"Add to Home Screen"</strong><br>
+            3. Tap <strong>"Add"</strong> — the app icon will appear on your home screen
+          </div>
+        </div>
+      </div>`;
+  } else if (deferredInstallPrompt) {
+    section.innerHTML = `
+      <div class="install-banner">
+        <div class="install-icon">💻</div>
+        <div class="install-text"><strong>Install on Mac / PC</strong><span>Install as a desktop app for offline access</span></div>
+        <button class="btn btn-primary" id="installBtn" onclick="triggerInstall()">Install App</button>
+      </div>`;
+  } else {
+    section.innerHTML = `
+      <div class="install-banner">
+        <div class="install-icon">ℹ️</div>
+        <div class="install-text">
+          <strong>Install this App</strong>
+          <span>Open this page in Chrome or Edge to install as a desktop app. On iPhone/iPad, use Safari and tap Share → Add to Home Screen.</span>
+        </div>
+      </div>`;
+  }
+}
+
+function triggerInstall() {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  deferredInstallPrompt.userChoice.then(result => {
+    if (result.outcome === 'accepted') showToast('App installed!', 'success');
+    deferredInstallPrompt = null;
+  });
+}
+
+// Show install banner on login page too
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+
+window.addEventListener('load', () => {
+  const data = getData();
+  if (!data.employees.length) saveData(getDefaultData());
+
+  // Check if already installed
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  if (!isStandalone && /iPad|iPhone|iPod/.test(navigator.userAgent)) {
+    // Show iOS hint at bottom of login
+    const hint = document.createElement('div');
+    hint.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);padding:12px 20px;font-size:12px;color:var(--text2);text-align:center;z-index:100;font-family:var(--mono)';
+    hint.innerHTML = '📱 Install: Safari → Share → Add to Home Screen';
+    document.body.appendChild(hint);
+  }
+});
+</script>
+</body>
+</html>
